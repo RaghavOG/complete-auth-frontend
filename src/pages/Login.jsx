@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
-import  { useState } from 'react';
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { toast } from 'react-hot-toast';
 import { Eye, EyeOff, Mail, Lock } from 'lucide-react';
@@ -8,20 +8,23 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardHeader, CardContent, CardFooter } from "@/components/ui/card";
 import OTPVerification from './OTPVerification';
-import ForgotPassword from './ForgotPassword'; 
-import axios from 'axios';
+import ForgotPassword from './ForgotPassword';
+import { useDispatch } from 'react-redux';
+import { login } from '@/redux/authSlice'; // Import the login action
+import axiosInstance from '@/lib/axiosInstance'; // Import the custom axios instance
 import { Link, useNavigate } from 'react-router-dom';
 
 const Login = () => {
   const [formData, setFormData] = useState({
     email: '',
-    password: '',
+    password: '', 
   });
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [showOTP, setShowOTP] = useState(false);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const navigate = useNavigate();
+  const dispatch = useDispatch(); // Initialize dispatch to update Redux store
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -31,15 +34,15 @@ const Login = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      const response = await axios.post(
-        `${import.meta.env.VITE_API_BACKEND_API_URL}/auth/loginUsingpasswordandotp`,
-        formData,
-        { withCredentials: true }
+      const response = await axiosInstance.post(
+        `/auth/loginUsingpasswordandotp`, // Use custom axios instance
+        formData
       );
 
       if (response.status === 200) {
         toast.success('Login successful! Please enter OTP.');
         setShowOTP(true);
+        // Dispatch login action to Redux store
       } else {
         toast.error(response.data.message || 'Login failed. Please try again.');
       }
@@ -56,6 +59,7 @@ const Login = () => {
 
   const handleVerificationComplete = () => {
     toast.success('Login completed successfully! via otp');
+
     navigate("/");
   };
 
@@ -143,4 +147,3 @@ const Login = () => {
 };
 
 export default Login;
-

@@ -7,7 +7,7 @@ import { Mail } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import axios from 'axios';
+import axiosInstance from '@/lib/axiosInstance'; // Import the axiosInstance
 
 const ForgotPassword = ({ onClose }) => {
   const [email, setEmail] = useState('');
@@ -17,10 +17,9 @@ const ForgotPassword = ({ onClose }) => {
     e.preventDefault();
     setLoading(true);
     try {
-      const response = await axios.post(
-        `${import.meta.env.VITE_API_BACKEND_API_URL}/auth/forgot-password`,
-        { email },
-        { withCredentials: true }
+      const response = await axiosInstance.post(
+        '/auth/forgot-password', // Use the relative URL since the base URL is already set in axiosInstance
+        { email }
       );
 
       if (response.status === 200) {

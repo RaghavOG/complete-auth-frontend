@@ -8,6 +8,7 @@ import Layout from './components/Layout';
 import ResetPassword from './pages/ResetPassword';
 import Profile from './pages/Profile';
 import PrivateRoute from './components/PrivateRoute';
+import VerifyEmail from './pages/VerifyEmail';
 
 function App() {
   const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
@@ -32,6 +33,7 @@ function App() {
 
           {/* Public routes */}
           <Route path="/reset-password/:token" element={<ResetPassword />} />
+          <Route path="/verify-email/:token" element={<VerifyEmail />} />
           <Route path="/login" element={isAuthenticated ? <Navigate to="/" /> : <Login />} />
           <Route path="/signup" element={<Signup />} />
         </Routes>

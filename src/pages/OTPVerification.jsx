@@ -6,14 +6,16 @@ import { toast } from "react-hot-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Loader2 } from "lucide-react"; // Importing the loading spinner
-import axios from "axios";
-
+import axiosInstance from "@/lib/axiosInstance"; // Import the global axios instance
+import { login } from '@/redux/authSlice'; 
+import { useDispatch } from 'react-redux';
 export default function OTPVerification({ email, onVerificationComplete }) {
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const [timeLeft, setTimeLeft] = useState(300); // 5 minutes
   const [isResendDisabled, setIsResendDisabled] = useState(true);
   const [loadingVerify, setLoadingVerify] = useState(false); // Loading state for Verify button
   const [loadingResend, setLoadingResend] = useState(false); // Loading state for Resend OTP button
+  const dispatch = useDispatch(); 
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -28,7 +30,7 @@ export default function OTPVerification({ email, onVerificationComplete }) {
     }, 1000);
 
     return () => clearInterval(timer);
-  }, []);
+  }, [timeLeft]);
 
   const handleChange = (element, index) => {
     if (isNaN(element.value)) return;
@@ -76,15 +78,15 @@ export default function OTPVerification({ email, onVerificationComplete }) {
     setLoadingVerify(true); // Set loading state to true when starting the request
 
     try {
-      const response = await axios.post(
-        `${import.meta.env.VITE_API_BACKEND_API_URL}/auth/login-otp`,
-        { email, otp: otpString },
-        { withCredentials: true } // Ensures credentials are sent with the request
+      const response = await axiosInstance.post(
+        "/auth/login-otp",  // Use global axios instance
+        { email, otp: otpString }
       );
 
       if (response.status === 200) {
         toast.success("Email verified successfully!");
-        localStorage.setItem("email", email);
+        dispatch(login(response.data.data.user));
+
         onVerificationComplete();
       } else {
         toast.error(response.data.message || "Invalid OTP");
@@ -100,10 +102,9 @@ export default function OTPVerification({ email, onVerificationComplete }) {
     setLoadingResend(true); // Set loading state to true when starting the request
 
     try {
-      const response = await axios.post(
-        `${import.meta.env.VITE_API_BACKEND_API_URL}/auth/resend-otp`,
-        { email },
-        { withCredentials: true } // Ensures credentials are sent with the request
+      const response = await axiosInstance.post(
+        "/auth/resend-otp", // Use global axios instance
+        { email }
       );
 
       if (response.status === 200) {

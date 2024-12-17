@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 import axios from 'axios';
-import { store } from './store';
-import { logout } from './features/authSlice';
+import store from '@/redux/store';
+import { logout } from '@/redux/authSlice';
 
 const axiosInstance = axios.create({
   baseURL: 'http://localhost:7000/api/v1', // Update with your API URL

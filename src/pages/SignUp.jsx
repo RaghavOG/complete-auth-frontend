@@ -1,6 +1,6 @@
 /* eslint-disable no-unused-vars */
 import { useState } from 'react';
-import axios from 'axios';
+import axiosInstance from '@/lib/axiosInstance'; // Import the axiosInstance
 import { toast } from 'react-hot-toast';
 import { motion } from 'framer-motion';
 import { Eye, EyeOff, UserPlus, User } from 'lucide-react';
@@ -39,7 +39,7 @@ const SignUp = () => {
     }
     setLoading(true);
     try {
-      const response = await axios.post(`${import.meta.env.VITE_API_BACKEND_API_URL}/auth/signup`, formData);
+      const response = await axiosInstance.post('/auth/signup', formData); // Using axiosInstance here
       toast.success('Signup successful!');
       setFormData({
         name: '',

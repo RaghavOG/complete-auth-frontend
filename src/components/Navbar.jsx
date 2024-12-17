@@ -9,6 +9,7 @@ function Navbar() {
   const { isAuthenticated, user } = useSelector((state) => state.auth); // Access auth state from Redux
   const [scrollProgress, setScrollProgress] = useState(0);
 
+
   useEffect(() => {
     const updateProgress = () => {
       const totalHeight = document.documentElement.scrollHeight - window.innerHeight;

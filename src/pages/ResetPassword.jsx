@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import axios from "axios";
+import axiosInstance from "@/lib/axiosInstance"; // Import the axios instance
 import { toast } from "react-hot-toast";
 import { motion } from "framer-motion";
 import { Eye, EyeOff, Lock } from "lucide-react";
@@ -28,8 +28,8 @@ export default function ResetPassword() {
     // Validate token on component mount
     const validateToken = async () => {
       try {
-        const response = await axios.get(
-          `${import.meta.env.VITE_API_BACKEND_API_URL}/auth/validate-reset-token`,
+        const response = await axiosInstance.get(
+          `/auth/validate-reset-token`, 
           { params: { resetToken } }
         );
         if (response.status === 200) {
@@ -59,14 +59,13 @@ export default function ResetPassword() {
     setIsLoading(true);
 
     try {
-      const response = await axios.post(
-        `${import.meta.env.VITE_API_BACKEND_API_URL}/auth/reset-password`,
+      const response = await axiosInstance.post(
+        `/auth/reset-password`,
         {
           resetToken,
           newPassword: formData.newPassword,
           confirmPassword: formData.confirmPassword,
-        },
-        { withCredentials: true }
+        }
       );
 
       if (response.status === 200) {

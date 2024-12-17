@@ -2,8 +2,10 @@
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { FaLinkedin, FaGithub } from 'react-icons/fa';
-
+import { useSelector } from 'react-redux';
 const Home = () => {
+    const user = useSelector((state) => state.auth.user);
+    console.log(user); 
     return (
         <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-gray-900 to-blue-900 text-white">
             <main className="flex flex-col items-center px-4 py-10">
