@@ -1,6 +1,6 @@
 /* eslint-disable no-unused-vars */
 import axios from 'axios';
-import store from '@/redux/store';
+import {store} from '@/redux/store';
 import { logout } from '@/redux/authSlice';
 
 const axiosInstance = axios.create({

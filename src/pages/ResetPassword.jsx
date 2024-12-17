@@ -27,14 +27,17 @@ export default function ResetPassword() {
   useEffect(() => {
     // Validate token on component mount
     const validateToken = async () => {
+      console.log("Entered the use effect ")
+      console.log(resetToken)
       try {
         const response = await axiosInstance.get(
-          `/auth/validate-reset-token`, 
-          { params: { resetToken } }
+          `/auth/validate-reset-token/${resetToken}`, 
         );
         if (response.status === 200) {
           setIsTokenValid(true);
         }
+
+
       } catch (error) {
         setIsTokenValid(false);
         toast.error(error.response?.data?.message || "Invalid or expired reset link.");
