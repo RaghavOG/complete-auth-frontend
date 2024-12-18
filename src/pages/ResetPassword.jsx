@@ -27,8 +27,7 @@ export default function ResetPassword() {
   useEffect(() => {
     // Validate token on component mount
     const validateToken = async () => {
-      console.log("Entered the use effect ")
-      console.log(resetToken)
+
       try {
         const response = await axiosInstance.get(
           `/auth/validate-reset-token/${resetToken}`, 

@@ -1,6 +1,10 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
+import { useDispatch } from 'react-redux';
+import { updateUser } from '@/redux/authSlice';
+
 import axiosInstance from '@/lib/axiosInstance'; // Import axiosInstance
 
 const VerifyEmail = () => {
@@ -8,6 +12,7 @@ const VerifyEmail = () => {
   const [message, setMessage] = useState('');
   const { token } = useParams(); // Get the token from the URL
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   useEffect(() => {
     const verifyEmail = async () => {
@@ -17,11 +22,15 @@ const VerifyEmail = () => {
         const response = await axiosInstance.post('/auth/verify-email', { token });
         setMessage(response.data.message);
         toast.success(response.data.message);
-
+        if(response.status === 200) {
+          const { emailVerified } = response.data.data;
+          dispatch(updateUser({ emailVerified }));
+          setTimeout(() => {
+            navigate('/login');
+          }, 2000);
+        }
         // You can redirect the user to login after successful verification
-        setTimeout(() => {
-          navigate('/login');
-        }, 2000);
+        
       } catch (error) {
         setMessage(error.response?.data?.message || 'Something went wrong');
         toast.error(error.response?.data?.message || 'Verification failed');

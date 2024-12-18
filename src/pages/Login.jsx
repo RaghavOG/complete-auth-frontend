@@ -7,11 +7,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardHeader, CardContent, CardFooter } from "@/components/ui/card";
-import OTPVerification from './OTPVerification';
+import OTPVerification from '@/pages/OTPVerification';
 import ForgotPassword from './ForgotPassword';
 import { useDispatch } from 'react-redux';
-import { login } from '@/redux/authSlice'; // Import the login action
-import axiosInstance from '@/lib/axiosInstance'; // Import the custom axios instance
+import axiosInstance from '@/lib/axiosInstance';
 import { Link, useNavigate } from 'react-router-dom';
 
 const Login = () => {
@@ -35,23 +34,27 @@ const Login = () => {
     setLoading(true);
     try {
       const response = await axiosInstance.post(
-        `/auth/loginUsingpasswordandotp`, // Use custom axios instance
+        `/auth/loginUsingpasswordandotp`, 
         formData
       );
-
+  
       if (response.status === 200) {
         toast.success('Login successful! Please enter OTP.');
         setShowOTP(true);
-        // Dispatch login action to Redux store
-      } else {
-        toast.error(response.data.message || 'Login failed. Please try again.');
       }
     } catch (error) {
-      toast.error('An error occurred. Please try again.');
+      if (error.response) {
+        toast.error(error.response.data.message || 'Login failed. Please try again.');
+      } else if (error.request) {
+        toast.error('No response from server. Please try again later.');
+      } else {
+        toast.error('An error occurred. Please try again.');
+      }
     } finally {
       setLoading(false);
     }
   };
+  
 
   const handleForgotPassword = () => {
     setShowForgotPassword(true);
@@ -68,7 +71,7 @@ const Login = () => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="flex justify-center items-center min-h-screen bg-gray-100 px-4"
+      className="flex justify-center items-center min-h-screen bg-gray-900 px-4"
     >
       <Card className="w-full max-w-sm md:max-w-md p-4 md:p-6">
         <CardHeader className="text-center">

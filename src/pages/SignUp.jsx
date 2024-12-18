@@ -1,6 +1,6 @@
 /* eslint-disable no-unused-vars */
-import { useState } from 'react';
-import axiosInstance from '@/lib/axiosInstance'; // Import the axiosInstance
+import  { useState } from 'react';
+import axiosInstance from '@/lib/axiosInstance';
 import { toast } from 'react-hot-toast';
 import { motion } from 'framer-motion';
 import { Eye, EyeOff, UserPlus, User } from 'lucide-react';
@@ -18,14 +18,31 @@ const SignUp = () => {
     email: '',
     confirmPassword: '',
     phone: '',
+    profilePic: null
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [imagePreview, setImagePreview] = useState(null);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleImageChange = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      setFormData({
+        ...formData,
+        profilePic: file
+      });
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -39,7 +56,16 @@ const SignUp = () => {
     }
     setLoading(true);
     try {
-      const response = await axiosInstance.post('/auth/signup', formData); // Using axiosInstance here
+      const formDataToSend = new FormData();
+      for (const key in formData) {
+        formDataToSend.append(key, formData[key]);
+      }
+
+      const response = await axiosInstance.post('/auth/signup', formDataToSend, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
       toast.success('Signup successful!');
       setFormData({
         name: '',
@@ -48,7 +74,9 @@ const SignUp = () => {
         email: '',
         confirmPassword: '',
         phone: '',
+        profilePic: null
       });
+      setImagePreview(null);
       navigate('/login');
     } catch (error) {
       toast.error(error.response?.data?.message || 'Signup failed. Please try again.');
@@ -101,13 +129,19 @@ const SignUp = () => {
             <div className="flex justify-center mb-4">
               <Label htmlFor="profilePic" className="cursor-pointer">
                 <div className="w-20 h-20 md:w-24 md:h-24 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
-                  <User className="w-10 h-10 md:w-12 md:h-12 text-gray-400" />
+                  {imagePreview ? (
+                    <img src={imagePreview} alt="Profile Preview" className="w-full h-full object-cover" />
+                  ) : (
+                    <User className="w-10 h-10 md:w-12 md:h-12 text-gray-400" />
+                  )}
                 </div>
                 <Input
                   type="file"
                   id="profilePic"
+                  name="profilePic"
                   className="hidden"
                   accept="image/*"
+                  onChange={handleImageChange}
                 />
               </Label>
             </div>
@@ -136,6 +170,7 @@ const SignUp = () => {
               <Input
                 id="email"
                 name="email"
+                type="email"
                 value={formData.email}
                 onChange={handleChange}
                 required
@@ -197,7 +232,7 @@ const SignUp = () => {
           </form>
         </CardContent>
         <CardFooter className="text-center text-sm">
-          Already have an account? <Link to={"/login"} className="text-blue-500">Log In</Link>
+          Already have an account? <Link to="/login" className="text-blue-500">Log In</Link>
         </CardFooter>
       </Card>
     </motion.div>
@@ -205,3 +240,4 @@ const SignUp = () => {
 };
 
 export default SignUp;
+

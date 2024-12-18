@@ -9,7 +9,7 @@ import { Loader2 } from "lucide-react"; // Importing the loading spinner
 import axiosInstance from "@/lib/axiosInstance"; // Import the global axios instance
 import { login } from '@/redux/authSlice'; 
 import { useDispatch } from 'react-redux';
-export default function OTPVerification({ email, onVerificationComplete }) {
+export default function OTPVerification({ email,onVerificationComplete }) {
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const [timeLeft, setTimeLeft] = useState(300); // 5 minutes
   const [isResendDisabled, setIsResendDisabled] = useState(true);
