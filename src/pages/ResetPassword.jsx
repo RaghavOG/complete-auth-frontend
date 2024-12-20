@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import axiosInstance from "@/lib/axiosInstance"; // Import the axios instance
 import { toast } from "react-hot-toast";
 import { motion } from "framer-motion";
@@ -99,8 +99,8 @@ export default function ResetPassword() {
   if (isTokenValid === false) {
     // Show error message if token is invalid
     return (
-      <div className="flex justify-center items-center min-h-screen">
-        <p className="text-red-500 text-lg">Invalid or expired reset link.</p>
+      <div className="flex justify-center items-center min-h-screen bg-gradient-to-b from-gray-900 to-blue-900">
+        <p className="text-red-500 text-3xl">Invalid or expired reset link.</p>
       </div>
     );
   }
@@ -111,17 +111,17 @@ export default function ResetPassword() {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="flex justify-center items-center min-h-screen bg-gray-100 px-4"
+      className="flex justify-center items-center min-h-screen bg-gradient-to-b from-gray-900 to-blue-900 px-4"
     >
-      <Card className="w-full max-w-md">
+      <Card className="w-full max-w-md bg-white/10 backdrop-blur-md">
         <CardHeader>
-          <h2 className="text-2xl font-bold text-center">Reset Password</h2>
+          <h2 className="text-2xl text-white font-bold text-center">Reset Password</h2>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <Label htmlFor="newPassword">New Password</Label>
-              <div className="relative">
+              <Label htmlFor="newPassword" className="text-white">New Password</Label>
+              <div className="relative mt-2">
                 <Input
                   id="newPassword"
                   name="newPassword"
@@ -130,7 +130,7 @@ export default function ResetPassword() {
                   value={formData.newPassword}
                   onChange={handleChange}
                   required
-                  className="pl-10"
+                  className="pl-10 *:"
                 />
                 <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
                 <button
@@ -144,8 +144,8 @@ export default function ResetPassword() {
             </div>
 
             <div>
-              <Label htmlFor="confirmPassword">Confirm Password</Label>
-              <div className="relative">
+              <Label htmlFor="confirmPassword" className="text-white" >Confirm Password</Label>
+              <div className="relative my-2">
                 <Input
                   id="confirmPassword"
                   name="confirmPassword"
@@ -172,8 +172,10 @@ export default function ResetPassword() {
             </Button>
           </form>
         </CardContent>
-        <CardFooter className="text-center text-sm">
-          Remember your password? <a href="/login" className="text-blue-500">Log In</a>
+        <CardFooter className="text-center text-white text-sm">
+          Remember your password?  <span className="ml-2"><Link to="/signup" className="text-blue-400 hover:text-blue-300 font-medium transition-colors duration-200">
+            Sign Up
+          </Link></span>
         </CardFooter>
       </Card>
     </motion.div>

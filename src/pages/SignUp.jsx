@@ -1,9 +1,8 @@
-/* eslint-disable no-unused-vars */
-import  { useState } from 'react';
+import { useState } from 'react';
 import axiosInstance from '@/lib/axiosInstance';
 import { toast } from 'react-hot-toast';
 import { motion } from 'framer-motion';
-import { Eye, EyeOff, UserPlus, User } from 'lucide-react';
+import { Eye, EyeOff, UserPlus, User, Phone, Lock, Mail } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -24,10 +23,12 @@ const SignUp = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [imagePreview, setImagePreview] = useState(null);
+  const [error, setError] = useState(''); // New state for error message
   const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+    setError(''); // Clear error when the user types
   };
 
   const handleImageChange = (event) => {
@@ -48,7 +49,7 @@ const SignUp = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (formData.password !== formData.confirmPassword) {
-      toast.error("Passwords don't match");
+      setError("Passwords don't match"); // Set error message
       return;
     }
     if (!validateForm()) {
@@ -61,7 +62,7 @@ const SignUp = () => {
         formDataToSend.append(key, formData[key]);
       }
 
-      const response = await axiosInstance.post('/auth/signup', formDataToSend, {
+      await axiosInstance.post('/auth/signup', formDataToSend, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
@@ -86,28 +87,33 @@ const SignUp = () => {
   };
 
   const validateForm = () => {
-    if (!formData.name) {
-      toast.error('Name is required');
+    const namePattern = /^[A-Za-z ]{3,}$/;
+    const usernamePattern = /^[A-Za-z0-9]{3,}$/;
+    const emailPattern = /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/;
+    const phonePattern = /^[0-9]{10}$/;
+
+    if (!namePattern.test(formData.name)) {
+      toast.error('Name is invalid. It should contain only letters and spaces, and be at least 3 characters long.');
       return false;
     }
-    if (!formData.username) {
-      toast.error('Username is required');
+    if (!usernamePattern.test(formData.username)) {
+      toast.error('Username is invalid. It should contain only alphanumeric characters and be at least 3 characters long.');
       return false;
     }
-    if (!formData.email) {
-      toast.error('Email is required');
+    if (!emailPattern.test(formData.email)) {
+      toast.error('Email is invalid.');
       return false;
     }
-    if (!formData.password) {
-      toast.error('Password is required');
+    if (formData.password.length < 6) {
+      toast.error('Password is invalid. It should be at least 6 characters long.');
       return false;
     }
-    if (!formData.confirmPassword) {
-      toast.error('Confirm Password is required');
+    if (formData.password !== formData.confirmPassword) {
+      toast.error('Passwords do not match.');
       return false;
     }
-    if (!formData.phone) {
-      toast.error('Phone Number is required');
+    if (!phonePattern.test(formData.phone)) {
+      toast.error('Phone Number is invalid. It should contain exactly 10 digits.');
       return false;
     }
     return true;
@@ -118,21 +124,36 @@ const SignUp = () => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="flex justify-center items-center min-h-screen bg-gray-100 px-4"
+      className="flex justify-center items-center  bg-gradient-to-b from-gray-900 to-blue-900 px-4 py-24"
     >
-      <Card className="w-full max-w-sm md:max-w-md p-4 md:p-6">
-        <CardHeader className="text-center">
-          <h2 className="text-2xl font-bold">Sign Up</h2>
+      <Card className="w-full max-w-md p-6 bg-white/10 backdrop-blur-md border-gray-700 shadow-2xl">
+        <CardHeader className="text-center pb-6">
+          <motion.h2 
+            className="text-3xl font-bold text-white"
+            initial={{ y: -20 }}
+            animate={{ y: 0 }}
+            transition={{ delay: 0.2, type: 'spring', stiffness: 120 }}
+          >
+            Create Account
+          </motion.h2>
+          <motion.p 
+            className="text-gray-400 mt-2"
+            initial={{ y: -20 }}
+            animate={{ y: 0 }}
+            transition={{ delay: 0.3, type: 'spring', stiffness: 120 }}
+          >
+            Join our community today
+          </motion.p>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="flex justify-center mb-4">
+            <div className="flex justify-center mb-6">
               <Label htmlFor="profilePic" className="cursor-pointer">
-                <div className="w-20 h-20 md:w-24 md:h-24 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
+                <div className="w-24 h-24 rounded-full bg-gray-700 flex items-center justify-center overflow-hidden border-2 border-blue-500 hover:border-blue-400 transition-colors duration-200">
                   {imagePreview ? (
                     <img src={imagePreview} alt="Profile Preview" className="w-full h-full object-cover" />
                   ) : (
-                    <User className="w-10 h-10 md:w-12 md:h-12 text-gray-400" />
+                    <User className="w-12 h-12 text-gray-400" />
                   )}
                 </div>
                 <Input
@@ -143,96 +164,147 @@ const SignUp = () => {
                   accept="image/*"
                   onChange={handleImageChange}
                 />
+                {/* <p className="text-center text-sm text-gray-400 mt-2">Upload Profile Picture</p> */}
               </Label>
             </div>
             <div>
-              <Label htmlFor="name">Name</Label>
-              <Input
-                id="name"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                required
-              />
+              <Label htmlFor="name" className="text-gray-300">Name</Label>
+              <div className="relative mt-1">
+                <Input
+                  id="name"
+                  name="name"
+                  placeholder="Enter your name"
+                  pattern="[A-Za-z ]{3,}"
+                  value={formData.name}
+                  onChange={handleChange}
+                  required
+                  className="pl-10 bg-gray-700 border-gray-600 text-white placeholder-gray-400 focus:border-blue-500 focus:ring-blue-500"
+                />
+                <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+              </div>
             </div>
             <div>
-              <Label htmlFor="username">Username</Label>
-              <Input
-                id="username"
-                name="username"
-                value={formData.username}
-                onChange={handleChange}
-                required
-              />
+              <Label htmlFor="username" className="text-gray-300">Username</Label>
+              <div className="relative mt-1">
+                <Input
+                  id="username"
+                  name="username"
+                  placeholder="Enter your username"
+                  pattern="[A-Za-z0-9]{3,}"
+                  value={formData.username}
+                  onChange={handleChange}
+                  required
+                  className="pl-10 bg-gray-700 border-gray-600 text-white placeholder-gray-400 focus:border-blue-500 focus:ring-blue-500"
+                />
+                <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+              </div>
             </div>
             <div>
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                name="email"
-                type="email"
-                value={formData.email}
-                onChange={handleChange}
-                required
-              />
+              <Label htmlFor="email" className="text-gray-300">Email</Label>
+              <div className="relative mt-1">
+                <Input
+                  id="email"
+                  name="email"
+                  placeholder="Enter your email"
+                  pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
+                  type="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  required
+                  className="pl-10 bg-gray-700 border-gray-600 text-white placeholder-gray-400 focus:border-blue-500 focus:ring-blue-500"
+                />
+                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+              </div>
             </div>
             <div>
-              <Label htmlFor="password">Password</Label>
-              <div className="relative">
+              <Label htmlFor="password" className="text-gray-300">Password</Label>
+              <div className="relative mt-1">
                 <Input
                   id="password"
                   name="password"
+                  placeholder="Enter your password"
                   type={showPassword ? 'text' : 'password'}
                   value={formData.password}
                   onChange={handleChange}
                   required
+                  className="pl-10 bg-gray-700 border-gray-600 text-white placeholder-gray-400 focus:border-blue-500 focus:ring-blue-500"
                 />
+                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-2 top-1/2 transform -translate-y-1/2"
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-300 focus:outline-none"
                 >
-                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
               </div>
             </div>
             <div>
-              <Label htmlFor="confirmPassword">Confirm Password</Label>
-              <div className="relative">
+              <Label htmlFor="confirmPassword" className="text-gray-300">Confirm Password</Label>
+              <div className="relative mt-1">
                 <Input
                   id="confirmPassword"
                   name="confirmPassword"
+                  placeholder="Confirm your password"
                   type={showConfirmPassword ? 'text' : 'password'}
                   value={formData.confirmPassword}
                   onChange={handleChange}
                   required
+                  className="pl-10 bg-gray-700 border-gray-600 text-white placeholder-gray-400 focus:border-blue-500 focus:ring-blue-500"
                 />
+                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-2 top-1/2 transform -translate-y-1/2"
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-300 focus:outline-none"
                 >
-                  {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                  {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
               </div>
+              {error && <p className="text-red-400 text-sm mt-1">{error}</p>}
             </div>
             <div>
-              <Label htmlFor="phone">Phone Number</Label>
-              <Input
-                id="phone"
-                name="phone"
-                value={formData.phone}
-                onChange={handleChange}
-                required
-              />
+              <Label htmlFor="phone" className="text-gray-300">Phone Number</Label>
+              <div className="relative mt-1">
+                <Input
+                  id="phone"
+                  name="phone"
+                  placeholder="Enter your phone number"
+                  value={formData.phone}
+                  onChange={handleChange}
+                  required
+                  className="pl-10 bg-gray-700 border-gray-600 text-white placeholder-gray-400 focus:border-blue-500 focus:ring-blue-500"
+                />
+                <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+              </div>
             </div>
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? 'Signing Up...' : <><UserPlus className="mr-2" /> Sign Up</>}
+            <Button 
+              type="submit" 
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-md transition-colors duration-200 flex items-center justify-center"
+              disabled={loading}
+            >
+              {loading ? (
+                <motion.div
+                  className="h-5 w-5 border-t-2 border-b-2 border-white rounded-full animate-spin"
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                />
+              ) : (
+                <>
+                  <UserPlus className="mr-2" size={18} />
+                  Sign Up
+                </>
+              )}
             </Button>
           </form>
         </CardContent>
-        <CardFooter className="text-center text-sm">
-          Already have an account? <Link to="/login" className="text-blue-500">Log In</Link>
+        <CardFooter className="text-center text-sm text-gray-400 pt-6">
+          Already have an account? {" "}
+          <span className='ml-2' >
+          <Link to="/login" className="text-blue-400 hover:text-blue-300 font-medium transition-colors duration-200">
+            Sign Up
+          </Link>
+          </span>
         </CardFooter>
       </Card>
     </motion.div>
@@ -240,4 +312,3 @@ const SignUp = () => {
 };
 
 export default SignUp;
-

@@ -52,7 +52,7 @@ function Navbar() {
             </Link>
 
             <div className="hidden md:flex items-center space-x-8">
-              {['Features', 'Explore', 'Community', 'Blog'].map((item, index) => (
+              {/* {['Features', 'Explore', 'Community', 'Blog'].map((item, index) => (
                 <motion.a
                   key={index}
                   href={`#${item.toLowerCase()}`}
@@ -62,7 +62,7 @@ function Navbar() {
                 >
                   {item}
                 </motion.a>
-              ))}
+              ))} */}
 
               {isAuthenticated ? (
                 <Link to="/profile">
@@ -82,7 +82,17 @@ function Navbar() {
                       whileTap={{ scale: 0.95 }}
                       className="px-4 py-2 text-indigo-600 border border-indigo-600 rounded-full transition-colors hover:bg-indigo-600 hover:text-white"
                     >
-                      Login
+                      Login with OTP and Password
+                    </motion.button>
+                  </Link>
+
+                  <Link to="/loginoptions">
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      className="px-4 py-2 text-indigo-600 border border-indigo-600 rounded-full transition-colors hover:bg-indigo-600 hover:text-white"
+                    >
+                      Login with Email and Password / OTP
                     </motion.button>
                   </Link>
                   <Link to="/signup">

@@ -1,22 +1,32 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable no-unused-vars */
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { toast } from "react-hot-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Loader2 } from "lucide-react"; // Importing the loading spinner
-import axiosInstance from "@/lib/axiosInstance"; // Import the global axios instance
-import { login } from '@/redux/authSlice'; 
-import { useDispatch } from 'react-redux';
-export default function OTPVerification({ email,onVerificationComplete }) {
+import { Loader2 } from "lucide-react"; // Loading spinner
+import axiosInstance from "@/lib/axiosInstance"; // Global axios instance
+import { login } from "@/redux/authSlice"; 
+import { useDispatch } from "react-redux";
+
+export default function OTPVerification({ email, onVerificationComplete }) {
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const [timeLeft, setTimeLeft] = useState(300); // 5 minutes
   const [isResendDisabled, setIsResendDisabled] = useState(true);
   const [loadingVerify, setLoadingVerify] = useState(false); // Loading state for Verify button
   const [loadingResend, setLoadingResend] = useState(false); // Loading state for Resend OTP button
-  const dispatch = useDispatch(); 
+  const dispatch = useDispatch();
+  const inputsRef = useRef([]);
 
+  // Auto-focus the first input on component mount
+  useEffect(() => {
+    if (inputsRef.current[0]) {
+      inputsRef.current[0].focus();
+    }
+  }, []);
+
+  // Timer for resend OTP
   useEffect(() => {
     const timer = setInterval(() => {
       setTimeLeft((prev) => {
@@ -32,16 +42,16 @@ export default function OTPVerification({ email,onVerificationComplete }) {
     return () => clearInterval(timer);
   }, [timeLeft]);
 
-  const handleChange = (element, index) => {
-    if (isNaN(element.value)) return;
+  const handleChange = (value, index) => {
+    if (isNaN(value)) return;
 
     const newOtp = [...otp];
-    newOtp[index] = element.value;
+    newOtp[index] = value;
     setOtp(newOtp);
 
     // Focus next input if value is entered
-    if (element.value && index < 5) {
-      const nextInput = document.getElementById(`otp-${index + 1}`);
+    if (value && index < 5) {
+      const nextInput = inputsRef.current[index + 1];
       if (nextInput) nextInput.focus();
     }
   };
@@ -49,44 +59,47 @@ export default function OTPVerification({ email,onVerificationComplete }) {
   const handleKeyDown = (event, index) => {
     const { key } = event;
 
-    if (key === "Backspace" || key === "Delete") {
-      event.preventDefault(); // Prevent default backspace/delete behavior
+    if (key === "Backspace") {
+      event.preventDefault();
       const newOtp = [...otp];
 
-      // Clear current input
-      newOtp[index] = "";
-      setOtp(newOtp);
-
-      // Focus previous input if backspace is pressed
-      if (key === "Backspace" && index > 0) {
-        const prevInput = document.getElementById(`otp-${index - 1}`);
-        if (prevInput) prevInput.focus();
+      if (otp[index]) {
+        // Clear current input
+        newOtp[index] = "";
+        setOtp(newOtp);
+      } else if (index > 0) {
+        // Focus previous input if current is empty
+        const prevInput = inputsRef.current[index - 1];
+        if (prevInput) {
+          prevInput.focus();
+          newOtp[index - 1] = "";
+          setOtp(newOtp);
+        }
       }
     } else if (key === "ArrowLeft" && index > 0) {
       // Move focus to the previous input on left arrow
-      const prevInput = document.getElementById(`otp-${index - 1}`);
+      const prevInput = inputsRef.current[index - 1];
       if (prevInput) prevInput.focus();
     } else if (key === "ArrowRight" && index < 5) {
       // Move focus to the next input on right arrow
-      const nextInput = document.getElementById(`otp-${index + 1}`);
+      const nextInput = inputsRef.current[index + 1];
       if (nextInput) nextInput.focus();
     }
   };
 
   const handleSubmit = async () => {
     const otpString = otp.join("");
-    setLoadingVerify(true); // Set loading state to true when starting the request
+    setLoadingVerify(true);
 
     try {
-      const response = await axiosInstance.post(
-        "/auth/login-otp",  // Use global axios instance
-        { email, otp: otpString }
-      );
+      const response = await axiosInstance.post("/auth/login-otp", {
+        email,
+        otp: otpString,
+      });
 
       if (response.status === 200) {
         toast.success("Email verified successfully!");
         dispatch(login(response.data.data.user));
-
         onVerificationComplete();
       } else {
         toast.error(response.data.message || "Invalid OTP");
@@ -94,35 +107,32 @@ export default function OTPVerification({ email,onVerificationComplete }) {
     } catch (error) {
       toast.error("Verification failed. Please try again.");
     } finally {
-      setLoadingVerify(false); // Set loading state back to false after request completes
+      setLoadingVerify(false);
     }
   };
 
   const handleResendOTP = async () => {
-    setLoadingResend(true); // Set loading state to true when starting the request
+    setLoadingResend(true);
 
     try {
-      const response = await axiosInstance.post(
-        "/auth/resend-otp", // Use global axios instance
-        { email }
-      );
+      const response = await axiosInstance.post("/auth/resend-otp", { email });
 
       if (response.status === 200) {
         toast.success("OTP resent successfully!");
         setTimeLeft(300); // Reset timer for 5 minutes
-        setIsResendDisabled(true); // Disable resend button again
+        setIsResendDisabled(true);
       } else {
         toast.error(response.data.message || "Failed to resend OTP");
       }
     } catch (error) {
       toast.error("An error occurred. Please try again.");
     } finally {
-      setLoadingResend(false); // Set loading state back to false after request completes
+      setLoadingResend(false);
     }
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 bg-gradient-to-b from-gray-900 to-blue-900 bg-opacity-50 flex items-center justify-center p-4">
       <motion.div
         initial={{ scale: 0.9, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
@@ -143,9 +153,10 @@ export default function OTPVerification({ email,onVerificationComplete }) {
               type="text"
               maxLength="1"
               value={digit}
-              onChange={(e) => handleChange(e.target, index)}
+              onChange={(e) => handleChange(e.target.value, index)}
               onKeyDown={(e) => handleKeyDown(e, index)}
               className="w-12 h-12 text-center text-2xl"
+              ref={(el) => (inputsRef.current[index] = el)} // Store ref for each input
             />
           ))}
         </div>
@@ -160,18 +171,22 @@ export default function OTPVerification({ email,onVerificationComplete }) {
         <Button
           onClick={handleSubmit}
           className="w-full mb-4"
-          disabled={loadingVerify || loadingResend} // Disable button while loading
+          disabled={loadingVerify || loadingResend}
         >
           {loadingVerify ? <Loader2 className="animate-spin mr-2" /> : "Verify"}
         </Button>
 
         <Button
           onClick={handleResendOTP}
-          disabled={isResendDisabled || loadingVerify || loadingResend} // Disable button while loading or if resend is disabled
+          disabled={isResendDisabled || loadingVerify || loadingResend}
           variant="outline"
           className="w-full"
         >
-          {loadingResend ? <Loader2 className="animate-spin mr-2" /> : "Resend OTP"}
+          {loadingResend ? (
+            <Loader2 className="animate-spin mr-2" />
+          ) : (
+            "Resend OTP"
+          )}
         </Button>
       </motion.div>
     </div>
