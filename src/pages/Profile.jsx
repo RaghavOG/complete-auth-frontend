@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { EyeIcon, EyeOffIcon, PencilIcon, Camera } from 'lucide-react'
+import { EyeIcon, EyeOffIcon, PencilIcon, Camera, LogOut, UserX } from 'lucide-react'
 import { toast } from 'react-hot-toast';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 
@@ -47,7 +47,7 @@ const Profile = () => {
     }));
   };
 
-  if (!user) return <div className="text-center p-4">Loading...</div>;
+  if (!user) return <div className="text-center p-4 text-white">Loading...</div>;
 
   const handleLogout = async () => {
     setLoadingState('logout', true);
@@ -57,7 +57,7 @@ const Profile = () => {
       toast.success('Logged out successfully!');
     } catch (error) {
       console.error('Logout failed:', error);
-      toast.error('Logout failed, please try again.');
+      toast.error(error.response?.data?.message || 'Logout failed, please try again.');
     } finally {
       setLoadingState('logout', false);
     }
@@ -71,7 +71,7 @@ const Profile = () => {
       toast.success('Logged out from all sessions!');
     } catch (error) {
       console.error('Logout all failed:', error);
-      toast.error('Logout from all sessions failed, please try again.');
+      toast.error(error.response?.data?.message || 'Logout from all sessions failed, please try again.');
     } finally {
       setLoadingState('logoutAll', false);
     }
@@ -83,6 +83,12 @@ const Profile = () => {
       toast.error('New password must be at least 6 characters long');
       return;
     }
+    // check if new password is same as current password
+    if (passwordForm.currentPassword === passwordForm.newPassword) {
+      toast.error('New password must be different from current password');
+      return;
+    }
+    
     setLoadingState('changePassword', true);
     try {
       await axiosInstance.post('/auth/change-password', passwordForm);
@@ -91,7 +97,7 @@ const Profile = () => {
       setShowPasswordDialog(false);
     } catch (error) {
       console.error('Change password failed:', error);
-      toast.error('Failed to change password');
+      toast.error(error.response?.data?.message || 'Failed to change password');
     } finally {
       setLoadingState('changePassword', false);
     }
@@ -107,7 +113,7 @@ const Profile = () => {
       toast.success('Profile updated successfully');
     } catch (error) {
       console.error('Update profile failed:', error);
-      toast.error('Failed to update profile');
+      toast.error(error.response?.data?.message || 'Failed to update profile');
     } finally {
       setLoadingState('updateProfile', false);
     }
@@ -128,7 +134,7 @@ const Profile = () => {
       toast.success('Profile picture updated successfully');
     } catch (error) {
       console.error('Update profile picture failed:', error);
-      toast.error('Failed to update profile picture');
+      toast.error(error.response?.data?.message || 'Failed to update profile picture');
     } finally {
       setLoadingState('updateProfilePic', false);
     }
@@ -143,7 +149,7 @@ const Profile = () => {
       setShowPicDialog(false);
     } catch (error) {
       console.error('Delete profile picture failed:', error);
-      toast.error('Failed to delete profile picture');
+      toast.error(error.response?.data?.message || 'Failed to delete profile picture');
     } finally {
       setLoadingState('deleteProfilePic', false);
     }
@@ -158,7 +164,7 @@ const Profile = () => {
         toast.success('Account deleted successfully');
       } catch (error) {
         console.error('Delete account failed:', error);
-        toast.error('Failed to delete account');
+        toast.error(error.response?.data?.message || 'Failed to delete account');
       } finally {
         setLoadingState('deleteAccount', false);
       }
@@ -172,121 +178,126 @@ const Profile = () => {
       toast.success('Verification email sent successfully');
     } catch (error) {
       console.error('Resend email verification failed:', error);
-      toast.error('Failed to resend verification email');
+      toast.error(error.response?.data?.message || 'Failed to resend verification email');
     } finally {
       setLoadingState('resendEmailVerification', false);
     }
   };
 
   return (
-    <div className='flex justify-center items-center min-h-screen bg-gray-100 py-12 px-4 sm:px-6 lg:px-8'>
-      <Card className="w-full max-w-md">
+    <div className='flex justify-center items-center min-h-screen bg-gradient-to-b from-gray-900 to-blue-900  px-4 sm:px-6 lg:px-8 py-24 '>
+      <Card className="w-full max-w-md bg-white/10 backdrop-blur-md border-gray-700 shadow-xl">
         <CardHeader className="text-center">
-          <CardTitle className="text-3xl font-bold">Profile</CardTitle>
+          <CardTitle className="text-3xl font-bold text-white">Profile</CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="flex flex-col items-center space-y-4">
             <div className="relative">
-              <Avatar className="w-32 h-32">
+              <Avatar className="w-32 h-32 border-2 border-blue-500">
                 <AvatarImage src={user.profilePic} alt={user.name} />
-                <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
+                <AvatarFallback className="bg-blue-600 text-white text-2xl">{user.name.charAt(0)}</AvatarFallback>
               </Avatar>
               <Button
                 variant="ghost"
                 size="icon"
-                className="absolute bottom-0 right-0 bg-white rounded-full p-1 shadow-md"
+                className="absolute bottom-0 right-0 bg-blue-500 text-white rounded-full p-1 shadow-md hover:bg-blue-600"
                 onClick={() => setShowPicDialog(true)}
               >
                 <PencilIcon className="h-4 w-4" />
               </Button>
             </div>
             <div className="text-center">
-              <h2 className="text-2xl font-semibold">{user.name}</h2>
-              <p className="text-gray-500">@{user.username}</p>
+              <h2 className="text-2xl font-semibold text-white">{user.name}</h2>
+              <p className="text-gray-400">@{user.username}</p>
             </div>
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-2 text-gray-300">
             <p><span className="font-semibold">Email:</span> {user.email}</p>
             <p><span className="font-semibold">Phone:</span> {user.phone}</p>
             <p><span className="font-semibold">Email verified:</span> {user.emailVerified ? 'Yes' : 'No'}</p>
             {!user.emailVerified && (
-              <Button onClick={handleResendEmailVerification} disabled={loadingStates.resendEmailVerification} className="w-full">
+              <Button onClick={handleResendEmailVerification} disabled={loadingStates.resendEmailVerification} className="w-full bg-blue-600 hover:bg-blue-700">
                 {loadingStates.resendEmailVerification ? 'Sending...' : 'Verify Email'}
               </Button>
             )}
           </div>
 
           <div className="space-y-2">
-            <Button onClick={() => setShowProfileDialog(true)} className="w-full">Edit Profile</Button>
-            <Button onClick={() => setShowPasswordDialog(true)} className="w-full">Change Password</Button>
+            <Button onClick={() => setShowProfileDialog(true)} className="w-full bg-blue-600 hover:bg-blue-700">Edit Profile</Button>
+            <Button onClick={() => setShowPasswordDialog(true)} className="w-full bg-blue-600 hover:bg-blue-700">Change Password</Button>
           </div>
 
           <div className="space-y-2">
-            <Button onClick={handleLogout} disabled={loadingStates.logout} className="w-full">
+            <Button onClick={handleLogout} disabled={loadingStates.logout} className="w-full bg-red-600 hover:bg-red-700">
               {loadingStates.logout ? 'Logging out...' : 'Logout'}
+              <LogOut className="ml-2 h-4 w-4" />
             </Button>
-            <Button variant="outline" onClick={handleLogoutAll} disabled={loadingStates.logoutAll} className="w-full">
+            <Button variant="outline" onClick={handleLogoutAll} disabled={loadingStates.logoutAll} className="w-full text-black border-gray-600 hover:bg-gray-500">
               {loadingStates.logoutAll ? 'Logging out...' : 'Logout from all sessions'}
             </Button>
           </div>
 
           <div>
-            <Button variant="destructive" onClick={handleDeleteAccount} disabled={loadingStates.deleteAccount} className="w-full">
+            <Button variant="destructive" onClick={handleDeleteAccount} disabled={loadingStates.deleteAccount} className="w-full bg-red-700 hover:bg-red-800">
               {loadingStates.deleteAccount ? 'Deleting...' : 'Delete Account'}
+              <UserX className="ml-2 h-4 w-4" />
             </Button>
           </div>
         </CardContent>
       </Card>
 
       <Dialog open={showProfileDialog} onOpenChange={setShowProfileDialog}>
-        <DialogContent>
+        <DialogContent className="bg-gray-800 text-white">
           <DialogHeader>
             <DialogTitle>Update Profile</DialogTitle>
           </DialogHeader>
           <form onSubmit={handleUpdateProfile} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="name">Name</Label>
+              <Label htmlFor="name" className="text-gray-300">Name</Label>
               <Input
                 id="name"
                 value={profileForm.name}
                 onChange={(e) => setProfileForm({ ...profileForm, name: e.target.value })}
+                className="bg-gray-700 border-gray-600 text-white"
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="username">Username</Label>
+              <Label htmlFor="username" className="text-gray-300">Username</Label>
               <Input
                 id="username"
                 value={profileForm.username}
                 onChange={(e) => setProfileForm({ ...profileForm, username: e.target.value })}
+                className="bg-gray-700 border-gray-600 text-white"
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="phone">Phone</Label>
+              <Label htmlFor="phone" className="text-gray-300">Phone</Label>
               <Input
                 id="phone"
                 value={profileForm.phone}
                 onChange={(e) => setProfileForm({ ...profileForm, phone: e.target.value })}
+                className="bg-gray-700 border-gray-600 text-white"
               />
             </div>
             <div className="flex justify-end space-x-2">
-              <Button type="button" variant="outline" onClick={() => setShowProfileDialog(false)} disabled={loadingStates.updateProfile}>Cancel</Button>
-              <Button type="submit" disabled={loadingStates.updateProfile}>{loadingStates.updateProfile ? 'Updating...' : 'Update'}</Button>
+              <Button type="button" variant="outline" onClick={() => setShowProfileDialog(false)} disabled={loadingStates.updateProfile} className='mr-4 text-black border-gray-600 hover:bg-gray-300'>Cancel</Button>
+              <Button type="submit" disabled={loadingStates.updateProfile} className="bg-blue-600 hover:bg-blue-700">{loadingStates.updateProfile ? 'Updating...' : 'Update'}</Button>
             </div>
           </form>
         </DialogContent>
       </Dialog>
 
       <Dialog open={showPicDialog} onOpenChange={setShowPicDialog}>
-        <DialogContent>
+        <DialogContent className="bg-gray-800 text-white">
           <DialogHeader>
             <DialogTitle>Update Profile Picture</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div className="flex justify-center">
-              <Avatar className="w-32 h-32">
+              <Avatar className="w-32 h-32 border-2 border-blue-500">
                 <AvatarImage src={newProfilePic ? URL.createObjectURL(newProfilePic) : user.profilePic} alt={user.name} />
-                <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
+                <AvatarFallback className="bg-blue-600 text-white text-2xl">{user.name.charAt(0)}</AvatarFallback>
               </Avatar>
             </div>
             <div className="relative">
@@ -299,19 +310,19 @@ const Profile = () => {
               />
               <Label
                 htmlFor="profile-pic-input"
-                className="flex items-center justify-center w-full h-10 px-4 py-2 text-sm font-medium text-white bg-primary rounded-md cursor-pointer hover:bg-primary/90"
+                className="flex items-center justify-center w-full h-10 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md cursor-pointer hover:bg-blue-700"
               >
                 <Camera className="w-5 h-5 mr-2" />
                 Choose Image
               </Label>
             </div>
             <div className="flex justify-between space-x-2">
-              <Button variant="destructive" onClick={handleDeleteProfilePic} disabled={loadingStates.deleteProfilePic}>
+              <Button variant="destructive" onClick={handleDeleteProfilePic} disabled={loadingStates.deleteProfilePic} className="bg-red-600 hover:bg-red-700">
                 {loadingStates.deleteProfilePic ? 'Deleting...' : 'Delete Picture'}
               </Button>
               <div>
-                <Button type="button" variant="outline" className='mr-4' onClick={() => setShowPicDialog(false)} disabled={loadingStates.updateProfilePic}>Cancel</Button>
-                <Button onClick={handleUpdateProfilePic} disabled={loadingStates.updateProfilePic || !newProfilePic}>
+                <Button type="button" variant="outline" className='mr-4 text-black border-gray-600 hover:bg-gray-300' onClick={() => setShowPicDialog(false)} disabled={loadingStates.updateProfilePic} >Cancel</Button>
+                <Button onClick={handleUpdateProfilePic} disabled={loadingStates.updateProfilePic || !newProfilePic} className="bg-blue-600 hover:bg-blue-700">
                   {loadingStates.updateProfilePic ? 'Updating...' : 'Update'}
                 </Button>
               </div>
@@ -321,52 +332,54 @@ const Profile = () => {
       </Dialog>
 
       <Dialog open={showPasswordDialog} onOpenChange={setShowPasswordDialog}>
-        <DialogContent>
+        <DialogContent className="bg-gray-800 text-white">
           <DialogHeader>
             <DialogTitle>Change Password</DialogTitle>
           </DialogHeader>
           <form onSubmit={handleChangePassword} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="currentPassword">Current Password</Label>
+              <Label htmlFor="currentPassword" className="text-gray-300">Current Password</Label>
               <div className="relative">
                 <Input
                   id="currentPassword"
                   type={showPassword ? 'text' : 'password'}
                   value={passwordForm.currentPassword}
                   onChange={(e) => setPasswordForm({ ...passwordForm, currentPassword: e.target.value })}
+                  className="bg-gray-700 border-gray-600 text-white pr-10"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-2 top-1/2 transform -translate-y-1/2"
+                  className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400"
                 >
                   {showPassword ? <EyeOffIcon className="h-4 w-4" /> : <EyeIcon className="h-4 w-4" />}
                 </button>
               </div>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="newPassword">New Password</Label>
+              <Label htmlFor="newPassword" className="text-gray-300">New Password</Label>
               <div className="relative">
                 <Input
                   id="newPassword"
                   type={showNewPassword ? 'text' : 'password'}
                   value={passwordForm.newPassword}
                   onChange={(e) => setPasswordForm({ ...passwordForm, newPassword: e.target.value })}
+                  className="bg-gray-700 border-gray-600 text-white pr-10"
                 />
                 <button
                   type="button"
                   onClick={() => setNewShowPassword(!showNewPassword)}
-                  className="absolute right-2 top-1/2 transform -translate-y-1/2"
+                  className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400"
                 >
                   {showNewPassword ? <EyeOffIcon className="h-4 w-4" /> : <EyeIcon className="h-4 w-4" />}
                 </button>
               </div>
             </div>
             <div className="flex justify-end space-x-2">
-              <Button type="button" variant="outline" onClick={() => setShowPasswordDialog(false)} disabled={loadingStates.changePassword}>
+              <Button type="button" variant="outline" onClick={() => setShowPasswordDialog(false)} disabled={loadingStates.changePassword} className='mr-4 text-black border-gray-600 hover:bg-gray-300'>
                 Cancel
               </Button>
-              <Button type="submit" disabled={loadingStates.changePassword}>
+              <Button type="submit" disabled={loadingStates.changePassword} className="bg-blue-600 hover:bg-blue-700">
                 {loadingStates.changePassword ? 'Changing...' : 'Change Password'}
               </Button>
             </div>
