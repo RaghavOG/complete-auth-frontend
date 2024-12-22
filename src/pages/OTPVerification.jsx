@@ -12,7 +12,7 @@ import { useDispatch } from "react-redux";
 
 export default function OTPVerification({ email, onVerificationComplete }) {
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
-  const [timeLeft, setTimeLeft] = useState(300); // 5 minutes
+  const [timeLeft, setTimeLeft] = useState(10); // 5 minutes
   const [isResendDisabled, setIsResendDisabled] = useState(true);
   const [loadingVerify, setLoadingVerify] = useState(false); // Loading state for Verify button
   const [loadingResend, setLoadingResend] = useState(false); // Loading state for Resend OTP button
@@ -55,7 +55,16 @@ export default function OTPVerification({ email, onVerificationComplete }) {
       if (nextInput) nextInput.focus();
     }
   };
+  const handlePaste = (event) => {
+    event.preventDefault();
+    const pastedData = event.clipboardData.getData("text");
+    const pastedOTP = pastedData.slice(0, 6).split("");
 
+    if (pastedOTP.length === 6 && pastedOTP.every(char => !isNaN(char))) {
+      setOtp(pastedOTP);
+      inputsRef.current[5].focus(); // Focus the last input after pasting
+    }
+  };
   const handleKeyDown = (event, index) => {
     const { key } = event;
 
@@ -119,7 +128,7 @@ export default function OTPVerification({ email, onVerificationComplete }) {
 
       if (response.status === 200) {
         toast.success("OTP resent successfully!");
-        setTimeLeft(300); // Reset timer for 5 minutes
+        setTimeLeft(10); // Reset timer for 5 minutes
         setIsResendDisabled(true);
       } else {
         toast.error(response.data.message || "Failed to resend OTP");
@@ -154,6 +163,7 @@ export default function OTPVerification({ email, onVerificationComplete }) {
               maxLength="1"
               value={digit}
               onChange={(e) => handleChange(e.target.value, index)}
+              onPaste={index === 0 ? handlePaste : undefined}
               onKeyDown={(e) => handleKeyDown(e, index)}
               className="w-12 h-12 text-center text-2xl"
               ref={(el) => (inputsRef.current[index] = el)} // Store ref for each input

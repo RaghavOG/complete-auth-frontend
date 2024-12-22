@@ -1,4 +1,5 @@
-import { useState } from 'react';
+/* eslint-disable react-hooks/exhaustive-deps */
+import { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { logout, updateUser } from '@/redux/authSlice';
 import axiosInstance from '@/lib/axiosInstance';
@@ -47,7 +48,23 @@ const Profile = () => {
     }));
   };
 
+  const fetchUserProfile = async () => {
+    try {
+      const response = await axiosInstance.get('/auth/profile');
+      dispatch(updateUser(response.data.user));
+    } catch (error) {
+      console.error('Failed to fetch user profile:', error);
+      toast.error('Failed to update profile information');
+    }
+  };
+
+  useEffect(() => {
+    fetchUserProfile();
+  }, []);
+
   if (!user) return <div className="text-center p-4 text-white">Loading...</div>;
+
+ 
 
   const handleLogout = async () => {
     setLoadingState('logout', true);
