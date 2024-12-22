@@ -15,6 +15,7 @@ import Profile from "./pages/Profile";
 import PrivateRoute from "./components/PrivateRoute";
 import VerifyEmail from "./pages/VerifyEmail";
 import LoginOption from "./pages/LoginOption";
+import ErrorPage from "./pages/ErrorPage"; // Import the error page
 
 function App() {
   const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
@@ -26,12 +27,7 @@ function App() {
         <Routes>
           {/* Public routes */}
           <Route element={<Layout />}>
-            <Route
-              path="/"
-              element={
-                <Home />
-              }
-            />
+            <Route path="/" element={<Home />} />
             <Route
               path="/login"
               element={isAuthenticated ? <Navigate to="/" /> : <Login />}
@@ -58,6 +54,9 @@ function App() {
           >
             <Route path="/profile" element={<Profile />} />
           </Route>
+
+          {/* Catch-all route */}
+          <Route path="*" element={<ErrorPage />} />
         </Routes>
       </Router>
     </>
