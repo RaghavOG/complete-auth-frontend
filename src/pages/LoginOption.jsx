@@ -92,7 +92,7 @@ const LoginOption = () => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="flex justify-center items-center min-h-screen bg-gradient-to-b from-gray-900 to-blue-900 px-4"
+      className="flex justify-center items-center min-h-screen bg-gradient-to-b from-blue-900 to-gray-900 px-4"
     >
       <Card className="w-full max-w-md p-6 bg-white/10 backdrop-blur-md border-gray-700">
         <CardHeader className="text-center">

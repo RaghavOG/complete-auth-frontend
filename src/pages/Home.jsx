@@ -32,18 +32,18 @@ const Home = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-b from-gray-800 to-gray-900 text-white  px-4 sm:px-6 lg:px-8 flex items-center justify-center py-24">
+        <div className="min-h-screen bg-gradient-to-b from-blue-900 to-gray-900 text-white py-24 px-4 sm:px-6 lg:px-8 flex items-center justify-center">
             <motion.div
                 className="max-w-4xl w-full mx-auto"
                 variants={containerVariants}
                 initial="hidden"
                 animate="visible"
             >
-                <motion.h1 
+                <motion.h1
                     className="text-4xl md:text-5xl font-bold text-center mb-12 text-blue-300"
                     variants={itemVariants}
                 >
-                    Welcome to Auth Controller
+                    Welcome to MERN Auth System
                 </motion.h1>
 
                 <motion.div variants={itemVariants} className="flex justify-center">
@@ -55,7 +55,7 @@ const Home = () => {
                             <p className="text-gray-300 text-center mb-6">
                                 {user
                                     ? "You're logged in! Explore your profile or log out."
-                                    : "Join our community to access exclusive features and content."}
+                                    : "Log in to access your profile and more features."}
                             </p>
                             <div className="flex flex-wrap gap-4 justify-center">
                                 {user ? (
@@ -96,6 +96,9 @@ const Home = () => {
                                 <p className="text-gray-300">
                                     This project is designed to be easily extensible and integrates with various services like Cloudinary for file uploads and a custom email service for sending verification emails and OTPs.
                                 </p>
+                                <p className="text-gray-300 mt-4">
+                                    This repository/project will be open-source, allowing anyone to contribute. Feel free to correct me if I am wrong anywhere.
+                                </p>
                             </CardContent>
                         </Card>
                     </section>
@@ -107,22 +110,24 @@ const Home = () => {
                                 <ul className="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-300">
                                     <li className="flex items-center"><span className="mr-2 text-green-400">✓</span> User Registration and Login</li>
                                     <li className="flex items-center"><span className="mr-2 text-green-400">✓</span> Email Verification</li>
-                                    <li className="flex items-center"><span className="mr-2 text-green-400">✓</span> OTP-based Login</li>
+                                    <li className="flex items-center"><span className="mr-2 text-green-400">✓</span> Login with OTP</li>
+                                    <li className="flex items-center"><span className="mr-2 text-green-400">✓</span> Login with Password</li>
+                                    <li className="flex items-center"><span className="mr-2 text-green-400">✓</span> Login with OTP and Password</li>
                                     <li className="flex items-center"><span className="mr-2 text-green-400">✓</span> Password Management</li>
                                     <li className="flex items-center"><span className="mr-2 text-green-400">✓</span> Token Management</li>
                                     <li className="flex items-center"><span className="mr-2 text-green-400">✓</span> Profile Management</li>
                                     <li className="flex items-center"><span className="mr-2 text-green-400">✓</span> Secure Authentication</li>
-                                    <li className="flex items-center"><span className="mr-2 text-green-400">✓</span> Extensible Architecture</li>
+                                    <li className="flex items-center"><span className="mr-2 text-green-400">✓</span> Shadcn Components</li>
+                                    And many more...
                                 </ul>
                             </CardContent>
                         </Card>
                     </section>
 
                     <section>
-                        <h2 className="text-3xl font-bold mb-4 text-blue-300 text-center">Developed By</h2>
+                        <h2 className="text-3xl font-bold mb-4 text-blue-300 text-center">Developed With ❤️ By - Raghav Singla</h2>
                         <Card className="bg-gray-700 shadow-xl w-full max-w-3xl mx-auto">
                             <CardContent className="p-6">
-                                <h3 className="text-xl font-semibold mb-4 text-center text-blue-200">Raghav Singla</h3>
                                 <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
                                     <div className="flex gap-4">
                                         <a href="https://www.linkedin.com/in/singlaraghav" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 transition-colors">
