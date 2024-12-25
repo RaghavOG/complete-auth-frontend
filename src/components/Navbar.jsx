@@ -122,7 +122,8 @@ function Navbar() {
                     whileTap={{ scale: 0.95 }}
                     className="w-full flex items-center justify-center gap-2 px-4 py-2 text-indigo-600 border border-indigo-600 rounded-full transition-colors hover:bg-indigo-600 hover:text-white"
                   >
-                    {user?.email}
+                    {/* {user?.email} */}
+                    Profile
                   </motion.button>
                 </Link>
               ) : (

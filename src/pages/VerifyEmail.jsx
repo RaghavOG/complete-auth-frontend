@@ -45,7 +45,7 @@ const VerifyEmail = () => {
   }, [token]);
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-100 px-4">
+    <div className="flex justify-center items-center min-h-screen bg-gradient-to-b from-blue-900 to-gray-900">
       <div className="w-full max-w-md p-4 bg-white rounded-md shadow-md text-center">
         {loading ? (
           <div>Loading...</div>
