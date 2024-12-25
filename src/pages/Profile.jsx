@@ -153,6 +153,14 @@ const Profile = () => {
 
   const handleChangePassword = async (e) => {
     e.preventDefault();
+
+    // check if current password is empty
+    if (!passwordForm.currentPassword || !passwordForm.newPassword) {
+      toast.error('password is required');
+      return;
+    }
+    
+
     if (passwordForm.newPassword.length < 6) {
       toast.error('New password must be at least 6 characters long');
       return;
@@ -179,7 +187,19 @@ const Profile = () => {
 
   const handleUpdateProfile = async (e) => {
     e.preventDefault();
+
+     // Check if any fields have changed
+    const hasChanges = Object.keys(profileForm).some(key => profileForm[key] !== user[key]);
+
+
+    if (!hasChanges) {
+      toast('No changes detected');
+      setShowProfileDialog(false);
+      return;
+    }
+    
     setLoadingState('updateProfile', true);
+    
     try {
       const response = await axiosInstance.put('/auth/update-profile', profileForm);
       dispatch(updateUser(response.data.user));
