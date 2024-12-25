@@ -16,13 +16,14 @@ import PrivateRoute from "./components/PrivateRoute";
 import VerifyEmail from "./pages/VerifyEmail";
 import LoginOption from "./pages/LoginOption";
 import ErrorPage from "./pages/ErrorPage"; // Import the error page
+import Login2FA from "./pages/Login2FA";
 
 function App() {
   const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
 
   return (
     <>
-      <Toaster position="top-right" />
+      <Toaster position="bottom-right" />
       <Router>
         <Routes>
           {/* Public routes */}
@@ -31,6 +32,10 @@ function App() {
             <Route
               path="/login"
               element={isAuthenticated ? <Navigate to="/" /> : <Login />}
+            />
+            <Route
+              path="/login2fa"
+              element={isAuthenticated ? <Navigate to="/" /> : <Login2FA />}
             />
             <Route
               path="/loginoptions"

@@ -1,150 +1,283 @@
-import { useSelector, useDispatch } from 'react-redux';
-import { Link, useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { logout } from '@/redux/authSlice';
-import { Github, Linkedin, LogOut, User, LogIn } from 'lucide-react';
+import { useState, useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { Link, useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { logout } from "@/redux/authSlice";
+import {
+  Github,
+  Linkedin,
+  LogOut,
+  User,
+  LogIn,
+  Code,
+  Server,
+  Database,
+  Loader2,
+  Mail,
+} from "lucide-react";
+import axios from "axios";
 
 const Home = () => {
-    const user = useSelector((state) => state.auth.user);
-    const dispatch = useDispatch();
-    const navigate = useNavigate();
+  const user = useSelector((state) => state.auth.user);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const [avatarUrl, setAvatarUrl] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-    const containerVariants = {
-        hidden: { opacity: 0 },
-        visible: {
-            opacity: 1,
-            transition: {
-                staggerChildren: 0.1
-            }
-        }
+  useEffect(() => {
+    const fetchAvatar = async () => {
+      setLoading(true);
+      try {
+        const response = await axios.get(
+          "https://api.github.com/users/RaghavOG"
+        );
+        setAvatarUrl(response.data.avatar_url);
+      } catch (error) {
+        console.error("Error fetching GitHub avatar:", error);
+        setAvatarUrl(null);
+      } finally {
+        setLoading(false);
+      }
     };
+    fetchAvatar();
+  }, []);
 
-    const itemVariants = {
-        hidden: { opacity: 0, y: 20 },
-        visible: { opacity: 1, y: 0 }
-    };
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+      },
+    },
+  };
 
-    const handleLogout = () => {
-        dispatch(logout());
-        navigate('/login');
-    };
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0 },
+  };
 
-    return (
-        <div className="min-h-screen bg-gradient-to-b from-blue-900 to-gray-900 text-white py-24 px-4 sm:px-6 lg:px-8 flex items-center justify-center">
-            <motion.div
-                className="max-w-4xl w-full mx-auto"
-                variants={containerVariants}
-                initial="hidden"
-                animate="visible"
-            >
-                <motion.h1
-                    className="text-4xl md:text-5xl font-bold text-center mb-12 text-blue-300"
-                    variants={itemVariants}
-                >
-                    Welcome to MERN Auth System
-                </motion.h1>
+  const handleLogout = () => {
+    dispatch(logout());
+    navigate("/login");
+  };
 
-                <motion.div variants={itemVariants} className="flex justify-center">
-                    <Card className="bg-gray-700 shadow-xl w-full max-w-2xl">
-                        <CardContent className="p-6">
-                            <h2 className="text-2xl font-semibold mb-4 text-center text-blue-200">
-                                {user ? `Hello, ${user.name}!` : "Hello, Guest!"}
-                            </h2>
-                            <p className="text-gray-300 text-center mb-6">
-                                {user
-                                    ? "You're logged in! Explore your profile or log out."
-                                    : "Log in to access your profile and more features."}
-                            </p>
-                            <div className="flex flex-wrap gap-4 justify-center">
-                                {user ? (
-                                    <>
-                                        <Button asChild className="bg-blue-600 hover:bg-blue-700">
-                                            <Link to="/profile"><User className="mr-2 h-4 w-4" /> View Profile</Link>
-                                        </Button>
-                                        <Button
-                                            className="bg-red-600 hover:bg-red-700"
-                                            onClick={handleLogout}
-                                        >
-                                            <LogOut className="mr-2 h-4 w-4" /> Logout
-                                        </Button>
-                                    </>
-                                ) : (
-                                    <Button asChild className="bg-green-600 hover:bg-green-700">
-                                        <Link to="/login"><LogIn className="mr-2 h-4 w-4" /> Log In</Link>
-                                    </Button>
-                                )}
-                            </div>
-                            {user && (
-                                <p className="text-sm text-gray-400 mt-4 text-center">
-                                    Logged in as: {user.email}
-                                </p>
-                            )}
-                        </CardContent>
-                    </Card>
-                </motion.div>
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-blue-900 to-gray-900 text-white py-24 px-4 sm:px-6 lg:px-8">
+      <motion.div
+        className="w-3/5 mx-auto"
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+      >
+        <motion.h1
+          className="text-4xl md:text-5xl font-bold text-blue-300 text-center mb-12"
+          variants={itemVariants}
+        >
+          MERN Authentication System
+        </motion.h1>
 
-                <motion.div variants={itemVariants} className="space-y-12 mt-12">
-                    <section>
-                        <h2 className="text-3xl font-bold mb-4 text-blue-300 text-center">About the Project</h2>
-                        <Card className="bg-gray-700 shadow-xl w-full max-w-3xl mx-auto">
-                            <CardContent className="p-6">
-                                <p className="text-gray-300 mb-4">
-                                    Auth Controller is a comprehensive authentication system built with Node.js, Express, and React. It provides a robust solution for user authentication and management, offering a wide range of features to ensure secure and efficient user interactions.
-                                </p>
-                                <p className="text-gray-300">
-                                    This project is designed to be easily extensible and integrates with various services like Cloudinary for file uploads and a custom email service for sending verification emails and OTPs.
-                                </p>
-                                <p className="text-gray-300 mt-4">
-                                    This repository/project will be open-source, allowing anyone to contribute. Feel free to correct me if I am wrong anywhere.
-                                </p>
-                            </CardContent>
-                        </Card>
-                    </section>
+        <div className="grid grid-cols-1 gap-8">
+          {/* Left Column */}
+          <motion.div className="space-y-8" variants={itemVariants}>
+            <Card className="bg-gray-800 shadow-xl">
+              <CardContent className="p-6">
+                <h2 className="text-2xl font-bold mb-4 text-blue-300">
+                  Key Features
+                </h2>
+                <ul className="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-300">
+                  <li className="flex items-center">
+                    <span className="mr-2 text-green-400">✓</span> User
+                    Registration
+                  </li>
+                  <li className="flex items-center">
+                    <span className="mr-2 text-green-400">✓</span> Email
+                    Verification
+                  </li>
+                  <li className="flex items-center">
+                    <span className="mr-2 text-green-400">✓</span> 2-Factor
+                    Authentication
+                  </li>
+                  <li className="flex items-center">
+                    <span className="mr-2 text-green-400">✓</span> Login with
+                    OTP
+                  </li>
+                  <li className="flex items-center">
+                    <span className="mr-2 text-green-400">✓</span> Login with
+                    Password
+                  </li>
+                  <li className="flex items-center">
+                    <span className="mr-2 text-green-400">✓</span> Login with
+                    OTP and Password Both
+                  </li>
+                  <li className="flex items-center">
+                    <span className="mr-2 text-green-400">✓</span> Forget /
+                    Reset Password
+                  </li>
+                  <li className="flex items-center">
+                    <span className="mr-2 text-green-400">✓</span> Profile
+                    Management
+                  </li>
+                  <li className="flex items-center">
+                    <span className="mr-2 text-green-400">✓</span> Token
+                    Management
+                  </li>
+                  <li className="flex items-center"> And Many more...</li>
+                  You Just need to change the some things according to your need
+                  and you are good to go.
+                </ul>
+              </CardContent>
+            </Card>
+          </motion.div>
 
-                    <section>
-                        <h2 className="text-3xl font-bold mb-4 text-blue-300 text-center">Key Features</h2>
-                        <Card className="bg-gray-700 shadow-xl w-full max-w-3xl mx-auto">
-                            <CardContent className="p-6">
-                                <ul className="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-300">
-                                    <li className="flex items-center"><span className="mr-2 text-green-400">✓</span> User Registration and Login</li>
-                                    <li className="flex items-center"><span className="mr-2 text-green-400">✓</span> Email Verification</li>
-                                    <li className="flex items-center"><span className="mr-2 text-green-400">✓</span> Login with OTP</li>
-                                    <li className="flex items-center"><span className="mr-2 text-green-400">✓</span> Login with Password</li>
-                                    <li className="flex items-center"><span className="mr-2 text-green-400">✓</span> Login with OTP and Password</li>
-                                    <li className="flex items-center"><span className="mr-2 text-green-400">✓</span> Password Management</li>
-                                    <li className="flex items-center"><span className="mr-2 text-green-400">✓</span> Token Management</li>
-                                    <li className="flex items-center"><span className="mr-2 text-green-400">✓</span> Profile Management</li>
-                                    <li className="flex items-center"><span className="mr-2 text-green-400">✓</span> Secure Authentication</li>
-                                    <li className="flex items-center"><span className="mr-2 text-green-400">✓</span> Shadcn Components</li>
-                                    And many more...
-                                </ul>
-                            </CardContent>
-                        </Card>
-                    </section>
+          {/* Right Column */}
+          <motion.div className="space-y-8" variants={itemVariants}>
+            <Card className="bg-gray-800 shadow-xl">
+              <CardContent className="p-6">
+                <h2 className="text-2xl font-bold mb-4 text-blue-300">
+                  Technologies Used
+                </h2>
+                <ul className="space-y-4 text-gray-300">
+                  <li className="flex items-center">
+                    <Code className="mr-2 h-5 w-5 text-blue-400" />
+                    <span>React.js with Redux for frontend</span>
+                  </li>
+                  <li className="flex items-center">
+                    <Server className="mr-2 h-5 w-5 text-green-400" />
+                    <span>Node.js and Express.js for backend</span>
+                  </li>
+                  <li className="flex items-center">
+                    <Database className="mr-2 h-5 w-5 text-yellow-400" />
+                    <span>MongoDB for database</span>
+                  </li>
+                  <li className="flex items-center">
+                    <Code className="mr-2 h-5 w-5 text-purple-400" />
+                    <span>Readymade Shadcn Components</span>
+                  </li>
+                </ul>
+              </CardContent>
+            </Card>
 
-                    <section>
-                        <h2 className="text-3xl font-bold mb-4 text-blue-300 text-center">Developed With ❤️ By - Raghav Singla</h2>
-                        <Card className="bg-gray-700 shadow-xl w-full max-w-3xl mx-auto">
-                            <CardContent className="p-6">
-                                <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
-                                    <div className="flex gap-4">
-                                        <a href="https://www.linkedin.com/in/singlaraghav" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 transition-colors">
-                                            <Linkedin size={24} />
-                                        </a>
-                                        <a href="https://github.com/RaghavOG" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-gray-300 transition-colors">
-                                            <Github size={24} />
-                                        </a>
-                                    </div>
-                                </div>
-                            </CardContent>
-                        </Card>
-                    </section>
-                </motion.div>
-            </motion.div>
+            <Card className="bg-gray-800 shadow-xl">
+              <CardContent className="p-6">
+                <h2 className="text-2xl font-semibold mb-4 text-blue-200">
+                  {user ? `Hello, ${user.name}!` : "Hello, Developer!"}
+                </h2>
+                <div className="flex flex-wrap gap-4 items-center">
+                  {user ? (
+                    <>
+                      <Button
+                        asChild
+                        size="sm"
+                        className="bg-blue-600 hover:bg-blue-700"
+                      >
+                        <Link to="/profile">
+                          <User className="mr-2 h-4 w-4" /> Profile
+                        </Link>
+                      </Button>
+                      <Button
+                        size="sm"
+                        className="bg-red-600 hover:bg-red-700"
+                        onClick={handleLogout}
+                      >
+                        <LogOut className="mr-2 h-4 w-4" /> Logout
+                      </Button>
+                      <p className="text-sm text-gray-400">
+                        Logged in as: {user.email}
+                      </p>
+                    </>
+                  ) : (
+                    <div className="flex flex-col gap-4 justify-center">
+                      <Button
+                        asChild
+                        size="sm"
+                        className="bg-green-600 hover:bg-green-700"
+                      >
+                        <Link to="/login">
+                          <LogIn className="mr-2 h-4 w-4" /> Login using Password and OTP
+                        </Link>
+                      </Button>
+                      <Button
+                        asChild
+                        size="sm"
+                        className="bg-green-600 hover:bg-green-700"
+                      >
+                        <Link to="/loginoptions">
+                          <LogIn className="mr-2 h-4 w-4" /> Login either using OTP or Password
+                        </Link>
+                      </Button>
+                      <Button
+                        asChild
+                        size="sm"
+                        className="bg-green-600 hover:bg-green-700"
+                      >
+                        <Link to="/login2fa">
+                          <LogIn className="mr-2 h-4 w-4" /> Login with Password and 2FA code
+                        </Link>
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-gray-800 shadow-xl">
+              <CardContent className="p-6">
+                <h2 className="text-2xl font-bold mb-4 text-blue-300">
+                  Made with ❤️ by 
+                </h2>
+                <div className="flex items-center space-x-4">
+                  {loading ? (
+                    <Loader2 className="h-8 w-8 animate-spin text-blue-400" />
+                  ) : (
+                    <img
+                      src={avatarUrl || "https://via.placeholder.com/150"}
+                      alt="Raghav Singla"
+                      className="w-20 h-20 rounded-full"
+                    />
+                  )}
+                  <div>
+                    <h3 className="text-xl font-semibold text-blue-200">
+                      Raghav Singla
+                    </h3>
+                    <p className="text-gray-400">Full Stack Developer</p>
+                    <div className="flex space-x-2 mt-2">
+                      <a
+                        href="https://www.linkedin.com/in/singlaraghav"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-400 hover:text-blue-300 transition-colors"
+                      >
+                        <Linkedin size={20} />
+                      </a>
+                      <a
+                        href="https://github.com/RaghavOG"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-gray-400 hover:text-gray-300 transition-colors"
+                      >
+                        <Github size={20} />
+                      </a>
+                      <a
+                        href="mailto:04raghavsingla28@gmail.com"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-gray-400 hover:text-gray-300 transition-colors"
+                      >
+                        <Mail size={20} />
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
         </div>
-    );
+      </motion.div>
+    </div>
+  );
 };
 
 export default Home;
