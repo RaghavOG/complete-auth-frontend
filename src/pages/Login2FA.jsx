@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { toast } from 'react-hot-toast';
 import { Eye, EyeOff, Mail, Lock, LogIn } from 'lucide-react';
@@ -16,6 +16,17 @@ const Login2FA = () => {
     email: '',
     password: '',
   });
+
+
+  useEffect(() => {
+    console.log('Component mounted'); 
+  
+    return () => {
+      console.log('Component unmounted');
+    }
+  }, [])
+  
+
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
@@ -45,6 +56,8 @@ const Login2FA = () => {
     if (!validateForm()) {
       return;
     }
+
+
     setLoading(true);
     try {
       const response = await axiosInstance.post(
@@ -52,7 +65,14 @@ const Login2FA = () => {
         formData
       );
 
+
       if (response.status === 200) {
+        if(response.data.requires2FA==false) {
+          toast('Please enable 2FA to login from here.', { icon: '🔒' });
+          navigate("/loginoptions");
+          return;
+          
+        }
         if (response.data.requires2FA) {
           toast.success('Credentials verified. Please enter 2FA code.');
           // Store the tempToken in localStorage
